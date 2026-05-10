@@ -1,0 +1,42 @@
+{
+  "texts": {
+    "title": "Case Simulator",
+    "rollButton": "ЛУДКА",
+    "modalTitle": "Ваш ПРИЗ!!!11!",
+    "acceptButton": "ПЕРЕМОГА"
+  },
+  "images": {
+    "logo": "/logo.png",
+    "logoSize": 300
+  },
+  "sounds": {
+    "mainSpinSound": "",
+    "tickSound": "/sounds/casino_click.MP3"
+  },
+  "prizes": [
+    {
+      "id": 1,
+      "probability": 10,
+      "src": "/prizes/1.png",
+      "name": "ФІГУРКА",
+      "sound": "/sounds/chicken-on-tree-screaming.mp3",
+      "rarityClass": "rarity-1"
+    },
+    {
+      "id": 2,
+      "probability": 20,
+      "src": "/prizes/2.png",
+      "name": "Знижка на базі",
+      "sound": "/sounds/case_opened.MP3",
+      "rarityClass": "rarity-2"
+    },
+    {
+      "id": 3,
+      "probability": 70,
+      "src": "/prizes/3.png",
+      "name": "анлак бро(",
+      "sound": "/sounds/bruh.MP3",
+      "rarityClass": "rarity-3"
+    }
+  ]
+}
