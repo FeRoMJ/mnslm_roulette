@@ -32,6 +32,7 @@ let tickBuffer = null;
 let currentTickSource = null;
 let inactivityTimer = null;
 let isScreensaverVisible = false;
+let isScreensaverFading = false;
 const screensaverOverlay = document.getElementById('screensaver');
 
 function resetInactivityTimer() {
@@ -41,6 +42,9 @@ function resetInactivityTimer() {
     hideScreensaver();
   }
 
+  const isActivelySpinning = isRolling && modal.classList.contains('hidden');
+  if (isActivelySpinning) return;
+
   if (config && config.screensaver && config.screensaver.timeout > 0) {
     inactivityTimer = setTimeout(showScreensaver, config.screensaver.timeout * 1000);
   }
@@ -48,6 +52,13 @@ function resetInactivityTimer() {
 
 function showScreensaver() {
   if (!config || !config.screensaver || !config.screensaver.mediaPath) return;
+
+  if (!modal.classList.contains('hidden')) {
+    closeWinnerModal();
+  }
+  if (!settingsModal.classList.contains('hidden')) {
+    settingsModal.classList.add('hidden');
+  }
 
   screensaverOverlay.innerHTML = '';
   const path = config.screensaver.mediaPath.toLowerCase();
@@ -71,8 +82,10 @@ function showScreensaver() {
 
 function hideScreensaver() {
   isScreensaverVisible = false;
+  isScreensaverFading = true;
   screensaverOverlay.classList.add('hidden');
   setTimeout(() => {
+    isScreensaverFading = false;
     if (!isScreensaverVisible) {
       screensaverOverlay.innerHTML = '';
     }
@@ -87,6 +100,11 @@ function hideScreensaver() {
 
     if (evt === 'keydown' && e.code === 'Enter' && wasVisible) {
       e.stopImmediatePropagation();
+      setTimeout(() => {
+        if (!isRolling && modal.classList.contains('hidden') && settingsModal.classList.contains('hidden')) {
+          startRoll();
+        }
+      }, 1000);
     }
   }, { capture: true });
 });
@@ -230,6 +248,9 @@ function startRoll() {
   if (isRolling || !config) return;
   isRolling = true;
   rollButton.disabled = true;
+  
+  // Clear timer so screensaver doesn't appear during the 6s spin
+  if (inactivityTimer) clearTimeout(inactivityTimer);
 
   // Audio
   if (config.sounds.mainSpinSound) {
@@ -285,6 +306,7 @@ function showWinner(prize) {
   winnerName.className = `rarity-text ${prize.rarityClass}`;
 
   modal.classList.remove('hidden');
+  resetInactivityTimer(); // Restart timer now that modal is open
 }
 
 function closeWinnerModal() {
@@ -319,6 +341,8 @@ closeModal.addEventListener('click', closeWinnerModal);
 document.addEventListener('keydown', (e) => {
   if (e.code === 'Enter') {
     e.preventDefault();
+    if (isScreensaverFading) return;
+    
     if (!isRolling && modal.classList.contains('hidden') && settingsModal.classList.contains('hidden')) {
       startRoll();
     } else if (!modal.classList.contains('hidden')) {
