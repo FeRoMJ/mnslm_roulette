@@ -30,6 +30,66 @@ let lastTickTime = 0;
 let audioCtx = null;
 let tickBuffer = null;
 let currentTickSource = null;
+let inactivityTimer = null;
+let isScreensaverVisible = false;
+const screensaverOverlay = document.getElementById('screensaver');
+
+function resetInactivityTimer() {
+  if (inactivityTimer) clearTimeout(inactivityTimer);
+
+  if (isScreensaverVisible) {
+    hideScreensaver();
+  }
+
+  if (config && config.screensaver && config.screensaver.timeout > 0) {
+    inactivityTimer = setTimeout(showScreensaver, config.screensaver.timeout * 1000);
+  }
+}
+
+function showScreensaver() {
+  if (!config || !config.screensaver || !config.screensaver.mediaPath) return;
+
+  screensaverOverlay.innerHTML = '';
+  const path = config.screensaver.mediaPath.toLowerCase();
+
+  if (path.endsWith('.mp4') || path.endsWith('.webm') || path.endsWith('.ogg')) {
+    const video = document.createElement('video');
+    video.src = config.screensaver.mediaPath;
+    video.autoplay = true;
+    video.loop = true;
+    video.muted = true;
+    screensaverOverlay.appendChild(video);
+  } else {
+    const img = document.createElement('img');
+    img.src = config.screensaver.mediaPath;
+    screensaverOverlay.appendChild(img);
+  }
+
+  isScreensaverVisible = true;
+  screensaverOverlay.classList.remove('hidden');
+}
+
+function hideScreensaver() {
+  isScreensaverVisible = false;
+  screensaverOverlay.classList.add('hidden');
+  setTimeout(() => {
+    if (!isScreensaverVisible) {
+      screensaverOverlay.innerHTML = '';
+    }
+  }, 1000);
+}
+
+// Activity listeners
+['mousemove', 'mousedown', 'touchstart', 'keydown'].forEach(evt => {
+  document.addEventListener(evt, (e) => {
+    const wasVisible = isScreensaverVisible;
+    resetInactivityTimer();
+
+    if (evt === 'keydown' && e.code === 'Enter' && wasVisible) {
+      e.stopImmediatePropagation();
+    }
+  }, { capture: true });
+});
 
 async function loadConfig() {
   try {
@@ -38,6 +98,7 @@ async function loadConfig() {
     applyConfigToUI();
     await loadTickAudio();
     initCase();
+    resetInactivityTimer();
   } catch (err) {
     console.error('Failed to load config', err);
     alert('Could not load configuration. Ensure backend is running.');
@@ -73,10 +134,10 @@ async function loadTickAudio() {
 function playTickSound() {
   if (!tickBuffer || !audioCtx) return;
   if (audioCtx.state === 'suspended') audioCtx.resume();
-  
+
   const now = performance.now();
   let deltaSec = tickBuffer.duration;
-  
+
   if (lastTickTime) {
     const delta = now - lastTickTime;
     if (delta > 0) {
@@ -84,24 +145,24 @@ function playTickSound() {
     }
   }
   lastTickTime = now;
-  
+
   if (currentTickSource) {
-    try { currentTickSource.stop(); } catch(e) {}
+    try { currentTickSource.stop(); } catch (e) { }
   }
-  
+
   const source = audioCtx.createBufferSource();
   source.buffer = tickBuffer;
   source.connect(audioCtx.destination);
-  
+
   let offset = 0;
   let playDuration = tickBuffer.duration;
-  
+
   // Если времени на проигрывание меньше чем длина звука, берем кусок из центра
   if (deltaSec < tickBuffer.duration) {
     playDuration = deltaSec;
     offset = (tickBuffer.duration / 2) - (playDuration / 2);
   }
-  
+
   source.start(0, offset, playDuration);
   currentTickSource = source;
 }
@@ -113,15 +174,15 @@ function checkTicks() {
   const matrix = new DOMMatrixReadOnly(style.transform);
   const currentX = matrix.m41;
   const containerWidth = caseContainer.clientWidth;
-  
+
   const pointInStrip = (containerWidth / 2) - currentX;
   const currentIndex = Math.floor(pointInStrip / 200);
-  
+
   if (lastTickIndex !== -1 && currentIndex > lastTickIndex) {
     playTickSound();
   }
   lastTickIndex = currentIndex;
-  
+
   requestAnimationFrame(checkTicks);
 }
 
@@ -142,13 +203,13 @@ function createItemElement(prize) {
   const div = document.createElement('div');
   div.className = 'item';
   div.dataset.rarity = prize.id;
-  
+
   const img = document.createElement('img');
   img.src = prize.src;
   img.onerror = () => {
     img.src = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjMzMzIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSI0OCIgZmlsbD0iI2ZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPj88L3RleHQ+PC9zdmc+';
   };
-  
+
   div.appendChild(img);
   return div;
 }
@@ -158,7 +219,7 @@ function initCase() {
   itemsStrip.style.transition = 'none';
   itemsStrip.style.transform = 'translateX(0px)';
   currentTranslate = 0;
-  
+
   // Fill initial items
   for (let i = 0; i < 20; i++) {
     itemsStrip.appendChild(createItemElement(getRandomPrize()));
@@ -169,7 +230,7 @@ function startRoll() {
   if (isRolling || !config) return;
   isRolling = true;
   rollButton.disabled = true;
-  
+
   // Audio
   if (config.sounds.mainSpinSound) {
     mainAudio = new Audio(config.sounds.mainSpinSound);
@@ -177,7 +238,7 @@ function startRoll() {
   }
 
   const winningPrize = getRandomPrize();
-  
+
   // We append more items to the strip dynamically so it doesn't jump
   // 60 items will be added for the spin
   const itemsToAdd = 60;
@@ -193,7 +254,7 @@ function startRoll() {
   const containerWidth = caseContainer.clientWidth;
   const winningItemCenter = (winningIndex * itemWidth) + (itemWidth / 2);
   const randomOffset = (Math.random() * 160) - 80;
-  
+
   currentTranslate = -(winningItemCenter - (containerWidth / 2) + randomOffset);
 
   // Animate
@@ -212,7 +273,7 @@ function startRoll() {
       dropAudio.play().catch(e => console.warn('Drop audio prevented:', e));
     }
     showWinner(winningPrize);
-  }, 6100); 
+  }, 6100);
 }
 
 function showWinner(prize) {
@@ -222,7 +283,7 @@ function showWinner(prize) {
   };
   winnerName.textContent = prize.name;
   winnerName.className = `rarity-text ${prize.rarityClass}`;
-  
+
   modal.classList.remove('hidden');
 }
 
@@ -233,7 +294,7 @@ function closeWinnerModal() {
     mainAudio.pause();
     mainAudio.currentTime = 0;
   }
-  
+
   // Cleanup off-screen DOM elements to prevent infinite DOM growth
   setTimeout(() => {
     const itemsToRemove = itemsStrip.children.length - 20;
@@ -276,7 +337,11 @@ function renderSettings() {
   document.getElementById('set-accept-btn').value = config.texts.acceptButton || '';
   document.getElementById('set-main-sound').value = config.sounds.mainSpinSound || '';
   document.getElementById('set-tick-sound').value = config.sounds.tickSound || '';
-  
+
+  const ss = config.screensaver || {};
+  document.getElementById('set-screensaver-timeout').value = ss.timeout || '';
+  document.getElementById('set-screensaver-media').value = ss.mediaPath || '';
+
   prizesContainer.innerHTML = `
     <div class="prize-row" style="font-weight:bold; background:none;">
       <div>ID</div>
@@ -287,7 +352,7 @@ function renderSettings() {
       <div>Action</div>
     </div>
   `;
-  
+
   config.prizes.forEach((prize, index) => {
     addPrizeRow(prize, index);
   });
@@ -304,14 +369,14 @@ function addPrizeRow(prize = {}, index = Date.now()) {
     <input type="text" class="p-sound" value="${prize.sound || ''}" placeholder="/sounds/x.mp3" />
     <button class="remove-btn">X</button>
   `;
-  
+
   // Hidden input for rarity class
   const classInput = document.createElement('input');
   classInput.type = 'hidden';
   classInput.className = 'p-class';
   classInput.value = prize.rarityClass || 'rarity-3';
   row.appendChild(classInput);
-  
+
   row.querySelector('.remove-btn').addEventListener('click', () => {
     row.remove();
   });
@@ -345,9 +410,13 @@ saveSettingsBtn.addEventListener('click', async () => {
       mainSpinSound: document.getElementById('set-main-sound').value,
       tickSound: document.getElementById('set-tick-sound').value
     },
+    screensaver: {
+      timeout: parseInt(document.getElementById('set-screensaver-timeout').value) || 0,
+      mediaPath: document.getElementById('set-screensaver-media').value
+    },
     prizes: []
   };
-  
+
   const rows = prizesContainer.querySelectorAll('.prize-row:not(:first-child)');
   rows.forEach(row => {
     newConfig.prizes.push({
@@ -359,7 +428,7 @@ saveSettingsBtn.addEventListener('click', async () => {
       rarityClass: row.querySelector('.p-class').value
     });
   });
-  
+
   try {
     saveSettingsBtn.textContent = 'Saving...';
     const res = await fetch('/api/save-config', {
@@ -367,12 +436,13 @@ saveSettingsBtn.addEventListener('click', async () => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(newConfig)
     });
-    
+
     if (res.ok) {
       config = newConfig;
       applyConfigToUI();
       await loadTickAudio();
       initCase();
+      resetInactivityTimer();
       settingsModal.classList.add('hidden');
     } else {
       alert('Failed to save configuration');

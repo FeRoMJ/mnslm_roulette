@@ -1,110 +1,130 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Premium Case Simulator</title>
-    <link rel="stylesheet" href="/style.css" />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
-  </head>
-  <body>
-    <div id="app">
-      <!-- Settings Button -->
-      <button id="open-settings-btn" class="settings-btn" aria-label="Settings">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
-      </button>
 
-      <header>
-        <div class="logo-container">
-          <img id="ui-logo" src="/logo.png" alt="Logo" class="main-logo" />
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Premium Case Simulator</title>
+  <link rel="stylesheet" href="/style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+</head>
+
+<body>
+  <div id="app">
+    <!-- Screensaver Overlay -->
+    <div id="screensaver" class="hidden"></div>
+
+    <!-- Settings Button -->
+    <button id="open-settings-btn" class="settings-btn" aria-label="Settings">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="3"></circle>
+        <path
+          d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z">
+        </path>
+      </svg>
+    </button>
+
+    <header>
+      <div class="logo-container">
+        <img id="ui-logo" src="/logo.png" alt="Logo" class="main-logo" />
+      </div>
+    </header>
+
+    <main class="case-wrapper">
+      <div class="case-container">
+        <div class="pointer"></div>
+        <div class="items-window">
+          <div class="items-strip" id="items-strip"></div>
         </div>
-      </header>
-
-      <main class="case-wrapper">
-        <div class="case-container">
-          <div class="pointer"></div>
-          <div class="items-window">
-            <div class="items-strip" id="items-strip"></div>
-          </div>
-          <div class="overlay-left"></div>
-          <div class="overlay-right"></div>
-        </div>
-      </main>
-
-      <div class="controls">
-        <button id="roll-button">OPEN CASE</button>
+        <div class="overlay-left"></div>
+        <div class="overlay-right"></div>
       </div>
-      
-      <!-- Winning Modal -->
-      <div id="winner-modal" class="modal hidden">
-         <div class="modal-content glass-effect">
-             <div class="winner-glow"></div>
-             <h2 id="ui-modal-title">Item Dropped!</h2>
-             <div class="winner-image-container">
-               <img id="winner-img" src="" alt="Prize" />
-             </div>
-             <p id="winner-name" class="rarity-text"></p>
-             <button id="close-modal">ACCEPT</button>
-         </div>
-      </div>
+    </main>
 
-      <!-- Settings Modal -->
-      <div id="settings-modal" class="modal hidden">
-         <div class="modal-content settings-content glass-effect">
-            <div class="settings-header">
-              <h2>Settings</h2>
-              <button id="close-settings-btn" class="icon-btn">&times;</button>
-            </div>
-            
-            <div class="settings-body">
-              <section>
-                <h3>General Settings</h3>
-                <div class="input-group">
-                  <label>Logo Path</label>
-                  <input type="text" id="set-logo-path" />
-                </div>
-                <div class="input-group">
-                  <label>Logo Size (px)</label>
-                  <input type="range" id="set-logo-size" min="50" max="800" step="10" />
-                </div>
-                <div class="input-group">
-                  <label>Roll Button Text</label>
-                  <input type="text" id="set-roll-btn" />
-                </div>
-                <div class="input-group">
-                  <label>Modal Title</label>
-                  <input type="text" id="set-modal-title" />
-                </div>
-                <div class="input-group">
-                  <label>Accept Button Text</label>
-                  <input type="text" id="set-accept-btn" />
-                </div>
-                <div class="input-group">
-                  <label>Main Spin Sound Path</label>
-                  <input type="text" id="set-main-sound" />
-                </div>
-                <div class="input-group">
-                  <label>Tick Sound Path</label>
-                  <input type="text" id="set-tick-sound" placeholder="/sounds/casino_click.MP3" />
-                </div>
-              </section>
-
-              <section>
-                <h3>Prizes & Probabilities</h3>
-                <div id="prizes-container">
-                  <!-- Generated dynamically -->
-                </div>
-                <button id="add-prize-btn" class="secondary-btn">+ Add Prize</button>
-              </section>
-            </div>
-
-            <div class="settings-footer">
-              <button id="save-settings-btn">Save Changes</button>
-            </div>
-         </div>
-      </div>
-
+    <div class="controls">
+      <button id="roll-button">OPEN CASE</button>
     </div>
-    <script type="module" src="/main.js"></script>
-  </body>
+
+    <!-- Winning Modal -->
+    <div id="winner-modal" class="modal hidden">
+      <div class="modal-content glass-effect">
+        <div class="winner-glow"></div>
+        <h2 id="ui-modal-title">Item Dropped!</h2>
+        <div class="winner-image-container">
+          <img id="winner-img" src="" alt="Prize" />
+        </div>
+        <p id="winner-name" class="rarity-text"></p>
+        <button id="close-modal">ACCEPT</button>
+      </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div id="settings-modal" class="modal hidden">
+      <div class="modal-content settings-content glass-effect">
+        <div class="settings-header">
+          <h2>Settings</h2>
+          <button id="close-settings-btn" class="icon-btn">&times;</button>
+        </div>
+
+        <div class="settings-body">
+          <section>
+            <h3>General Settings</h3>
+            <div class="input-group">
+              <label>Logo Path</label>
+              <input type="text" id="set-logo-path" />
+            </div>
+            <div class="input-group">
+              <label>Logo Size (px)</label>
+              <input type="range" id="set-logo-size" min="50" max="800" step="10" />
+            </div>
+            <div class="input-group">
+              <label>Roll Button Text</label>
+              <input type="text" id="set-roll-btn" />
+            </div>
+            <div class="input-group">
+              <label>Modal Title</label>
+              <input type="text" id="set-modal-title" />
+            </div>
+            <div class="input-group">
+              <label>Accept Button Text</label>
+              <input type="text" id="set-accept-btn" />
+            </div>
+            <div class="input-group">
+              <label>Main Spin Sound Path</label>
+              <input type="text" id="set-main-sound" />
+            </div>
+            <div class="input-group">
+              <label>Tick Sound Path</label>
+              <input type="text" id="set-tick-sound" placeholder="/sounds/casino_click.MP3" />
+            </div>
+            <div class="input-group">
+              <label>Screensaver Timeout (sec, 0 = off)</label>
+              <input type="number" id="set-screensaver-timeout" min="0" placeholder="e.g. 60" />
+            </div>
+            <div class="input-group">
+              <label>Screensaver Media Path</label>
+              <input type="text" id="set-screensaver-media" placeholder="/screensaver.mp4" />
+            </div>
+          </section>
+
+          <section>
+            <h3>Prizes & Probabilities</h3>
+            <div id="prizes-container">
+              <!-- Generated dynamically -->
+            </div>
+            <button id="add-prize-btn" class="secondary-btn">+ Add Prize</button>
+          </section>
+        </div>
+
+        <div class="settings-footer">
+          <button id="save-settings-btn">Save Changes</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+  <script type="module" src="/main.js"></script>
+</body>
+
 </html>

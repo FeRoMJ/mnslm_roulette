@@ -13,6 +13,10 @@
     "mainSpinSound": "",
     "tickSound": "/sounds/casino_click.MP3"
   },
+  "screensaver": {
+    "timeout": 4,
+    "mediaPath": "/screensaver.png"
+  },
   "prizes": [
     {
       "id": 1,
