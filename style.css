@@ -1,9 +1,16 @@
 :root {
   --bg-color: #0d1117;
+  --bg-image: radial-gradient(circle at 50% -20%, #1f2937, var(--bg-color) 80%);
   --text-color: #f0f6fc;
   --accent-color: #58a6ff;
-  --glass-bg: rgba(22, 27, 34, 0.6);
-  --glass-border: rgba(255, 255, 255, 0.1);
+  --case-bg-color: #161b22;
+  --button-color: #2ea043;
+  --button-text-color: #ffffff;
+  
+  /* Derived variables with color-mix */
+  --glass-bg: color-mix(in srgb, var(--case-bg-color) 70%, transparent);
+  --glass-border: color-mix(in srgb, var(--text-color) 10%, transparent);
+  --button-shadow-color: color-mix(in srgb, var(--button-color) 40%, transparent);
   --input-bg: rgba(1, 4, 9, 0.8);
 }
 
@@ -22,7 +29,10 @@ body {
   justify-content: center;
   align-items: center;
   overflow: hidden;
-  background-image: radial-gradient(circle at 50% -20%, #1f2937, var(--bg-color) 80%);
+  background-image: var(--bg-image);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
 }
 
 #app {
@@ -111,8 +121,8 @@ kbd {
   transform: translateX(-50%);
   width: 4px;
   height: 100%;
-  background: #ffea00;
-  box-shadow: 0 0 15px #ffea00, 0 0 30px #ffea00;
+  background: var(--accent-color);
+  box-shadow: 0 0 15px var(--accent-color), 0 0 30px var(--accent-color);
   z-index: 10;
   border-radius: 2px;
 }
@@ -125,7 +135,7 @@ kbd {
   transform: translateX(-50%);
   border-width: 15px 10px 0;
   border-style: solid;
-  border-color: #ffea00 transparent transparent transparent;
+  border-color: var(--accent-color) transparent transparent transparent;
 }
 
 .items-window {
@@ -154,8 +164,8 @@ kbd {
   justify-content: center;
   align-items: center;
   padding: 20px;
-  border-right: 1px solid rgba(255, 255, 255, 0.05);
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.02) 0%, rgba(255, 255, 255, 0) 100%);
+  border-right: 1px solid color-mix(in srgb, var(--text-color) 10%, transparent);
+  background: linear-gradient(180deg, color-mix(in srgb, var(--text-color) 4%, transparent) 0%, transparent 100%);
 }
 
 .item img {
@@ -204,12 +214,12 @@ kbd {
 
 .overlay-left {
   left: 0;
-  background: linear-gradient(90deg, var(--bg-color) 0%, transparent 100%);
+  background: linear-gradient(90deg, var(--case-bg-color) 0%, transparent 100%);
 }
 
 .overlay-right {
   right: 0;
-  background: linear-gradient(270deg, var(--bg-color) 0%, transparent 100%);
+  background: linear-gradient(270deg, var(--case-bg-color) 0%, transparent 100%);
 }
 
 .controls button {
@@ -217,20 +227,20 @@ kbd {
   font-size: 1.2rem;
   font-weight: 800;
   text-transform: uppercase;
-  color: #fff;
-  background: linear-gradient(135deg, #2ea043, #238636);
+  color: var(--button-text-color);
+  background: var(--button-color);
   border: none;
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.2s ease;
-  box-shadow: 0 4px 15px rgba(46, 160, 67, 0.4);
+  box-shadow: 0 4px 15px var(--button-shadow-color);
   letter-spacing: 1px;
 }
 
 .controls button:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(46, 160, 67, 0.6);
-  background: linear-gradient(135deg, #3fb950, #2ea043);
+  box-shadow: 0 6px 20px var(--button-shadow-color);
+  filter: brightness(1.15);
 }
 
 .controls button:active {
@@ -379,6 +389,18 @@ kbd {
 }
 
 /* Settings Modal */
+#settings-modal {
+  --text-color: #f0f6fc;
+  --accent-color: #58a6ff;
+  --case-bg-color: #161b22;
+  --glass-bg: #161b22;
+  --glass-border: rgba(255, 255, 255, 0.15);
+  --input-bg: #0d1117;
+  
+  color-scheme: dark;
+  color: var(--text-color);
+}
+
 .settings-content {
   width: 90%;
   max-width: 800px;

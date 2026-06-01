@@ -109,6 +109,59 @@
           </section>
 
           <section>
+            <h3>Theme & Aesthetics</h3>
+            <div class="input-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+              <div class="input-group">
+                <label>Background Color</label>
+                <input type="color" id="set-bg-color" />
+              </div>
+              <div class="input-group">
+                <label>Text Color</label>
+                <input type="color" id="set-text-color" />
+              </div>
+            </div>
+            
+            <div class="input-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+              <div class="input-group">
+                <label>Accent Color</label>
+                <input type="color" id="set-accent-color" />
+              </div>
+              <div class="input-group">
+                <label>Gacha/Case Background</label>
+                <input type="color" id="set-case-bg" />
+              </div>
+            </div>
+
+            <div class="input-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+              <div class="input-group">
+                <label>Primary Button Color</label>
+                <input type="color" id="set-btn-color" />
+              </div>
+              <div class="input-group">
+                <label>Button Text Color</label>
+                <input type="color" id="set-btn-text-color" />
+              </div>
+            </div>
+
+            <div class="input-group">
+              <label>Background Image Path (URL / Path)</label>
+              <input type="text" id="set-bg-image-path" placeholder="e.g. /background.jpg" />
+            </div>
+
+            <div class="input-group">
+              <label>Upload Background Image File</label>
+              <input type="file" id="set-bg-image-file" accept="image/*" style="padding: 0.3rem;" />
+            </div>
+
+            <div class="input-group" style="flex-direction: row; align-items: center; gap: 0.5rem; margin-top: 0.5rem;">
+              <input type="checkbox" id="set-auto-adjust" style="width: auto; cursor: pointer;" />
+              <label for="set-auto-adjust" style="margin: 0; cursor: pointer; font-weight: bold; color: var(--accent-color);">Auto-adjust colors based on background (Smart Wheel)</label>
+            </div>
+
+            <button id="magic-adjust-btn" class="secondary-btn" style="margin-top: 1rem; width: 100%; font-weight: bold; color: #fff; background: var(--accent-color); border: none;">✨ Magic Auto-Adjust Palette</button>
+          </section>
+
+          <section>
             <h3>Prizes & Probabilities</h3>
             <div id="prizes-container">
               <!-- Generated dynamically -->

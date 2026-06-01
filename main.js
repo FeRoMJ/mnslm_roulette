@@ -130,6 +130,23 @@ function applyConfigToUI() {
   uiModalTitle.textContent = config.texts.modalTitle;
   closeModal.textContent = config.texts.acceptButton;
   document.title = config.texts.title;
+
+  // Apply theme configurations
+  if (config.theme) {
+    const root = document.documentElement;
+    root.style.setProperty('--bg-color', config.theme.bgColor || '#0d1117');
+    root.style.setProperty('--text-color', config.theme.textColor || '#f0f6fc');
+    root.style.setProperty('--accent-color', config.theme.accentColor || '#58a6ff');
+    root.style.setProperty('--case-bg-color', config.theme.caseBgColor || '#161b22');
+    root.style.setProperty('--button-color', config.theme.buttonColor || '#2ea043');
+    root.style.setProperty('--button-text-color', config.theme.buttonTextColor || '#ffffff');
+
+    if (config.theme.bgImagePath) {
+      root.style.setProperty('--bg-image', `url("${config.theme.bgImagePath}")`);
+    } else {
+      root.style.setProperty('--bg-image', `radial-gradient(circle at 50% -20%, #1f2937, var(--bg-color) 80%)`);
+    }
+  }
 }
 
 async function loadTickAudio() {
@@ -366,6 +383,18 @@ function renderSettings() {
   document.getElementById('set-screensaver-timeout').value = ss.timeout || '';
   document.getElementById('set-screensaver-media').value = ss.mediaPath || '';
 
+  // Theme Settings Rendering
+  const theme = config.theme || {};
+  document.getElementById('set-bg-color').value = theme.bgColor || '#0d1117';
+  document.getElementById('set-text-color').value = theme.textColor || '#f0f6fc';
+  document.getElementById('set-accent-color').value = theme.accentColor || '#58a6ff';
+  document.getElementById('set-case-bg').value = theme.caseBgColor || '#161b22';
+  document.getElementById('set-btn-color').value = theme.buttonColor || '#2ea043';
+  document.getElementById('set-btn-text-color').value = theme.buttonTextColor || '#ffffff';
+  document.getElementById('set-bg-image-path').value = theme.bgImagePath || '';
+  document.getElementById('set-auto-adjust').checked = theme.autoAdjust !== false;
+  document.getElementById('set-bg-image-file').value = '';
+
   prizesContainer.innerHTML = `
     <div class="prize-row" style="font-weight:bold; background:none;">
       <div>ID</div>
@@ -438,6 +467,16 @@ saveSettingsBtn.addEventListener('click', async () => {
       timeout: parseInt(document.getElementById('set-screensaver-timeout').value) || 0,
       mediaPath: document.getElementById('set-screensaver-media').value
     },
+    theme: {
+      bgColor: document.getElementById('set-bg-color').value,
+      textColor: document.getElementById('set-text-color').value,
+      accentColor: document.getElementById('set-accent-color').value,
+      caseBgColor: document.getElementById('set-case-bg').value,
+      buttonColor: document.getElementById('set-btn-color').value,
+      buttonTextColor: document.getElementById('set-btn-text-color').value,
+      bgImagePath: document.getElementById('set-bg-image-path').value,
+      autoAdjust: document.getElementById('set-auto-adjust').checked
+    },
     prizes: []
   };
 
@@ -482,6 +521,188 @@ saveSettingsBtn.addEventListener('click', async () => {
 // Boot
 document.getElementById('set-logo-size').addEventListener('input', (e) => {
   uiLogo.style.maxWidth = e.target.value + 'px';
+});
+
+// ------------- THEME & COLOR UTILITIES ------------- //
+
+// Hex to RGB
+function hexToRgb(hex) {
+  const shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
+  const fullHex = hex.replace(shorthandRegex, (m, r, g, b) => r + r + g + g + b + b);
+  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(fullHex);
+  return result ? {
+    r: parseInt(result[1], 16),
+    g: parseInt(result[2], 16),
+    b: parseInt(result[3], 16)
+  } : null;
+}
+
+// RGB to HSL
+function rgbToHsl(r, g, b) {
+  r /= 255; g /= 255; b /= 255;
+  const max = Math.max(r, g, b), min = Math.min(r, g, b);
+  let h, s, l = (max + min) / 2;
+
+  if (max === min) {
+    h = s = 0; // achromatic
+  } else {
+    const d = max - min;
+    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+    switch (max) {
+      case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+      case g: h = (b - r) / d + 2; break;
+      case b: h = (r - g) / d + 4; break;
+    }
+    h /= 6;
+  }
+  return {
+    h: Math.round(h * 360),
+    s: Math.round(s * 100),
+    l: Math.round(l * 100)
+  };
+}
+
+// HSL to Hex
+function hslToHex(h, s, l) {
+  l /= 100;
+  const a = s * Math.min(l, 1 - l) / 100;
+  const f = n => {
+    const k = (n + h / 30) % 12;
+    const color = l - a * Math.max(Math.min(k - 3, 9 - k, 1), -1);
+    const hex = Math.round(255 * color).toString(16).padStart(2, '0');
+    return hex;
+  };
+  return `#${f(0)}${f(8)}${f(4)}`;
+}
+
+// Generate designer palette from background hex color
+function generatePaletteFromBgHex(bgHex) {
+  const rgb = hexToRgb(bgHex);
+  if (!rgb) return null;
+  const hsl = rgbToHsl(rgb.r, rgb.g, rgb.b);
+  const isLight = hsl.l > 50;
+
+  // 1. Text color: highly contrasting off-white or charcoal
+  const textHex = isLight 
+    ? hslToHex(hsl.h, Math.max(10, hsl.s * 0.3), 12) 
+    : hslToHex(hsl.h, Math.max(10, hsl.s * 0.2), 95);
+
+  // 2. Accent color: Complementary (shifted by 180 degrees)
+  const accentHue = (hsl.h + 180) % 360;
+  const accentHex = isLight
+    ? hslToHex(accentHue, Math.max(70, hsl.s), 35) // deep for readability on light
+    : hslToHex(accentHue, Math.max(70, hsl.s), 65); // vibrant glow on dark
+
+  // 3. Case Background color: Solid/semi-opaque cards contrasting bg
+  let caseBgHex;
+  if (isLight) {
+    caseBgHex = hslToHex(hsl.h, Math.max(10, hsl.s * 0.5), Math.max(5, hsl.l - 5));
+  } else {
+    caseBgHex = hslToHex(hsl.h, Math.max(10, hsl.s * 0.8), Math.min(90, hsl.l + 5));
+  }
+
+  // 4. Primary Button Color: Triadic hue-shift (+120 degrees)
+  const btnHue = (hsl.h + 120) % 360;
+  const btnHex = isLight
+    ? hslToHex(btnHue, Math.max(80, hsl.s), 40)
+    : hslToHex(btnHue, Math.max(80, hsl.s), 50);
+
+  // 5. Button Text Color: contrasting with button color
+  const btnRgb = hexToRgb(btnHex);
+  const btnHsl = rgbToHsl(btnRgb.r, btnRgb.g, btnRgb.b);
+  const btnTextHex = btnHsl.l > 50 ? '#000000' : '#ffffff';
+
+  return {
+    bgColor: bgHex,
+    textColor: textHex,
+    accentColor: accentHex,
+    caseBgColor: caseBgHex,
+    buttonColor: btnHex,
+    buttonTextColor: btnTextHex
+  };
+}
+
+// Extract dominant color of an image (dataURL) using off-screen canvas
+function extractDominantColorFromDataUrl(dataUrl, callback) {
+  const img = new Image();
+  img.onload = () => {
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    canvas.width = 10;
+    canvas.height = 10;
+    try {
+      ctx.drawImage(img, 0, 0, 10, 10);
+      const imgData = ctx.getImageData(0, 0, 10, 10).data;
+      let r = 0, g = 0, b = 0, count = 0;
+      for (let i = 0; i < imgData.length; i += 4) {
+        if (imgData[i+3] < 128) continue; // skip transparent
+        r += imgData[i];
+        g += imgData[i+1];
+        b += imgData[i+2];
+        count++;
+      }
+      if (count === 0) {
+        callback('#0d1117');
+        return;
+      }
+      const avgR = Math.round(r / count);
+      const avgG = Math.round(g / count);
+      const avgB = Math.round(b / count);
+      
+      const componentToHex = c => c.toString(16).padStart(2, '0');
+      const hex = `#${componentToHex(avgR)}${componentToHex(avgG)}${componentToHex(avgB)}`;
+      callback(hex);
+    } catch (e) {
+      console.warn('Canvas reading failed (CORS or empty data):', e);
+      callback('#0d1117');
+    }
+  };
+  img.onerror = () => callback('#0d1117');
+  img.src = dataUrl;
+}
+
+function applyAutoAdjustPalette(bgHex) {
+  const palette = generatePaletteFromBgHex(bgHex);
+  if (palette) {
+    document.getElementById('set-text-color').value = palette.textColor;
+    document.getElementById('set-accent-color').value = palette.accentColor;
+    document.getElementById('set-case-bg').value = palette.caseBgColor;
+    document.getElementById('set-btn-color').value = palette.buttonColor;
+    document.getElementById('set-btn-text-color').value = palette.buttonTextColor;
+  }
+}
+
+// ------------- THEME LISTENERS ------------- //
+
+document.getElementById('set-bg-color').addEventListener('input', (e) => {
+  if (document.getElementById('set-auto-adjust').checked) {
+    applyAutoAdjustPalette(e.target.value);
+  }
+});
+
+document.getElementById('magic-adjust-btn').addEventListener('click', (e) => {
+  e.preventDefault();
+  const bgHex = document.getElementById('set-bg-color').value;
+  applyAutoAdjustPalette(bgHex);
+});
+
+document.getElementById('set-bg-image-file').addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = (event) => {
+    const dataUrl = event.target.result;
+    document.getElementById('set-bg-image-path').value = dataUrl;
+
+    if (document.getElementById('set-auto-adjust').checked) {
+      extractDominantColorFromDataUrl(dataUrl, (dominantHex) => {
+        document.getElementById('set-bg-color').value = dominantHex;
+        applyAutoAdjustPalette(dominantHex);
+      });
+    }
+  };
+  reader.readAsDataURL(file);
 });
 
 loadConfig();

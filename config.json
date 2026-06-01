@@ -1,13 +1,13 @@
 {
   "texts": {
     "title": "Case Simulator",
-    "rollButton": "ЛУДКА",
+    "rollButton": "ГАЧА",
     "modalTitle": "Ваш ПРИЗ!!!11!",
-    "acceptButton": "ПЕРЕМОГА"
+    "acceptButton": "ОК"
   },
   "images": {
     "logo": "/logo.png",
-    "logoSize": 300
+    "logoSize": 430
   },
   "sounds": {
     "mainSpinSound": "",
@@ -15,30 +15,48 @@
   },
   "screensaver": {
     "timeout": 30,
-    "mediaPath": "/screensaver.png"
+    "mediaPath": "/screensaver.mp4"
+  },
+  "theme": {
+    "bgColor": "#b4d1fd",
+    "textColor": "#ffffff",
+    "accentColor": "#ae6a04",
+    "caseBgColor": "#b4c7e4",
+    "buttonColor": "#c70553",
+    "buttonTextColor": "#ffffff",
+    "bgImagePath": "/gacha2.png",
+    "autoAdjust": true
   },
   "prizes": [
     {
       "id": 1,
-      "probability": 10,
-      "src": "/prizes/1.png",
+      "probability": 0.1,
+      "src": "/prizes/4.png",
       "name": "ФІГУРКА",
       "sound": "/sounds/chicken-on-tree-screaming.mp3",
       "rarityClass": "rarity-1"
     },
     {
       "id": 2,
-      "probability": 20,
-      "src": "/prizes/2.png",
-      "name": "Знижка на базі",
+      "probability": 1,
+      "src": "/prizes/5.png",
+      "name": "Знижка 30%!11111",
       "sound": "/sounds/case_opened.MP3",
       "rarityClass": "rarity-2"
     },
     {
       "id": 3,
-      "probability": 70,
+      "probability": 10,
+      "src": "/prizes/6.png",
+      "name": "Знижка 20% на базі",
+      "sound": "/sounds/case_opened.MP3",
+      "rarityClass": "rarity-3"
+    },
+    {
+      "id": 4,
+      "probability": 88.9,
       "src": "/prizes/3.png",
-      "name": "анлак бро(",
+      "name": "Спробуйте ще раз",
       "sound": "/sounds/bruh.MP3",
       "rarityClass": "rarity-3"
     }
