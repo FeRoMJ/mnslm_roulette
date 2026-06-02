@@ -34,6 +34,7 @@ let inactivityTimer = null;
 let isScreensaverVisible = false;
 let isScreensaverFading = false;
 const screensaverOverlay = document.getElementById('screensaver');
+let winnerModalCloseTimeout = null;
 
 function resetInactivityTimer() {
   if (inactivityTimer) clearTimeout(inactivityTimer);
@@ -324,14 +325,33 @@ function showWinner(prize) {
 
   modal.classList.remove('hidden');
   resetInactivityTimer(); // Restart timer now that modal is open
+
+  // Clear any existing winner close timeout
+  if (winnerModalCloseTimeout) {
+    clearTimeout(winnerModalCloseTimeout);
+    winnerModalCloseTimeout = null;
+  }
+
+  // Setup auto-close timer if configured and > 0
+  if (prize.closeTimer && prize.closeTimer > 0) {
+    winnerModalCloseTimeout = setTimeout(() => {
+      closeWinnerModal();
+    }, prize.closeTimer * 1000);
+  }
 }
 
-function closeWinnerModal() {
+function closeWinnerModal(startRollAfter = false) {
   modal.classList.add('hidden');
   rollButton.disabled = false;
   if (mainAudio) {
     mainAudio.pause();
     mainAudio.currentTime = 0;
+  }
+
+  // Clear timer if closed manually or via other triggers
+  if (winnerModalCloseTimeout) {
+    clearTimeout(winnerModalCloseTimeout);
+    winnerModalCloseTimeout = null;
   }
 
   // Cleanup off-screen DOM elements to prevent infinite DOM growth
@@ -348,6 +368,10 @@ function closeWinnerModal() {
       itemsStrip.style.transform = `translateX(${currentTranslate}px)`;
     }
     isRolling = false; // Allow next roll only after cleanup is done
+    
+    if (startRollAfter) {
+      startRoll();
+    }
   }, 500); // Wait for modal fade out
 }
 
@@ -356,6 +380,16 @@ rollButton.addEventListener('click', startRoll);
 closeModal.addEventListener('click', closeWinnerModal);
 
 document.addEventListener('keydown', (e) => {
+  // 1. Hotkey for settings: any digit (0-9) when settings is closed
+  if (settingsModal.classList.contains('hidden')) {
+    if (e.key >= '0' && e.key <= '9') {
+      e.preventDefault();
+      openSettings();
+      return;
+    }
+  }
+
+  // 2. Roll controls: Enter key
   if (e.code === 'Enter') {
     e.preventDefault();
     if (isScreensaverFading) return;
@@ -363,7 +397,7 @@ document.addEventListener('keydown', (e) => {
     if (!isRolling && modal.classList.contains('hidden') && settingsModal.classList.contains('hidden')) {
       startRoll();
     } else if (!modal.classList.contains('hidden')) {
-      closeWinnerModal();
+      closeWinnerModal(true); // closes and immediately rolls again!
     }
   }
 });
@@ -402,6 +436,7 @@ function renderSettings() {
       <div>Image Src</div>
       <div>Name & Class</div>
       <div>Sound Src</div>
+      <div>Timer (s)</div>
       <div>Action</div>
     </div>
   `;
@@ -420,6 +455,7 @@ function addPrizeRow(prize = {}, index = Date.now()) {
     <input type="text" class="p-img" value="${prize.src || ''}" placeholder="/prizes/x.png" />
     <input type="text" class="p-name" value="${prize.name || ''}" placeholder="Name" />
     <input type="text" class="p-sound" value="${prize.sound || ''}" placeholder="/sounds/x.mp3" />
+    <input type="number" class="p-timer" value="${prize.closeTimer !== undefined ? prize.closeTimer : 0}" min="0" placeholder="Sec" />
     <button class="remove-btn">X</button>
   `;
 
@@ -436,14 +472,19 @@ function addPrizeRow(prize = {}, index = Date.now()) {
   prizesContainer.appendChild(row);
 }
 
-openSettingsBtn.addEventListener('click', () => {
+function openSettings() {
   renderSettings();
   settingsModal.classList.remove('hidden');
-});
+  document.body.classList.add('settings-open');
+}
 
-closeSettingsBtn.addEventListener('click', () => {
+function closeSettings() {
   settingsModal.classList.add('hidden');
-});
+  document.body.classList.remove('settings-open');
+}
+
+openSettingsBtn.addEventListener('click', openSettings);
+closeSettingsBtn.addEventListener('click', closeSettings);
 
 addPrizeBtn.addEventListener('click', () => addPrizeRow());
 
@@ -488,6 +529,7 @@ saveSettingsBtn.addEventListener('click', async () => {
       src: row.querySelector('.p-img').value,
       name: row.querySelector('.p-name').value,
       sound: row.querySelector('.p-sound').value,
+      closeTimer: parseInt(row.querySelector('.p-timer').value) || 0,
       rarityClass: row.querySelector('.p-class').value
     });
   });
@@ -506,7 +548,7 @@ saveSettingsBtn.addEventListener('click', async () => {
       await loadTickAudio();
       initCase();
       resetInactivityTimer();
-      settingsModal.classList.add('hidden');
+      closeSettings();
     } else {
       alert('Failed to save configuration');
     }

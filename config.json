@@ -34,6 +34,7 @@
       "src": "/prizes/4.png",
       "name": "ФІГУРКА",
       "sound": "/sounds/chicken-on-tree-screaming.mp3",
+      "closeTimer": 30,
       "rarityClass": "rarity-1"
     },
     {
@@ -42,6 +43,7 @@
       "src": "/prizes/5.png",
       "name": "Знижка 30%!11111",
       "sound": "/sounds/case_opened.MP3",
+      "closeTimer": 30,
       "rarityClass": "rarity-2"
     },
     {
@@ -50,6 +52,7 @@
       "src": "/prizes/6.png",
       "name": "Знижка 20% на базі",
       "sound": "/sounds/case_opened.MP3",
+      "closeTimer": 30,
       "rarityClass": "rarity-3"
     },
     {
@@ -58,6 +61,7 @@
       "src": "/prizes/3.png",
       "name": "Спробуйте ще раз",
       "sound": "/sounds/bruh.MP3",
+      "closeTimer": 5,
       "rarityClass": "rarity-3"
     }
   ]

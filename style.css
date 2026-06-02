@@ -465,7 +465,7 @@ kbd {
 
 .prize-row {
   display: grid;
-  grid-template-columns: 0.5fr 1fr 2fr 2fr 2fr 0.5fr;
+  grid-template-columns: 0.5fr 1fr 2fr 2fr 2fr 1fr 0.5fr;
   gap: 0.5rem;
   align-items: center;
   margin-bottom: 0.5rem;
@@ -554,4 +554,38 @@ kbd {
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+
+/* UI Hiding & Cursor Scoping */
+body, body * {
+  cursor: none !important;
+}
+
+body.settings-open, body.settings-open * {
+  cursor: auto !important;
+}
+
+body.settings-open button,
+body.settings-open a,
+body.settings-open input[type="button"],
+body.settings-open input[type="submit"],
+body.settings-open input[type="file"],
+body.settings-open select,
+body.settings-open .remove-btn,
+body.settings-open .secondary-btn {
+  cursor: pointer !important;
+}
+
+/* Hide interactive controls in gacha mode */
+.settings-btn,
+#open-settings-btn {
+  display: none !important;
+}
+
+.controls {
+  display: none !important;
+}
+
+#close-modal {
+  display: none !important;
 }
